@@ -43,7 +43,7 @@ defmodule JUnitFormatter do
     failures: 0,
     skipped: 0,
     tests: 0,
-    time: 0,
+    time: 0.0,
     test_cases: []
 
     @type t :: %__MODULE__{
@@ -51,7 +51,7 @@ defmodule JUnitFormatter do
       failures: non_neg_integer,
       skipped: non_neg_integer,
       tests: non_neg_integer,
-      time: non_neg_integer,
+      time: float,
       test_cases: [ExUnit.Test.t]
     }
   end
@@ -135,7 +135,7 @@ defmodule JUnitFormatter do
                   failures: stats.failures,
                   name: name,
                   tests: stats.tests,
-                  time: stats.time],
+                  time: format_time(stats.time)], 
      for test <- stats.test_cases do
        generate_testcases(test)
      end
@@ -145,9 +145,14 @@ defmodule JUnitFormatter do
   defp generate_testcases(test) do
     {:testcase, [classname: Atom.to_char_list(test.case),
                  name: Atom.to_char_list(test.name),
-                 time: test.time],
+                 time: format_time(test.time)],
      generate_test_body(test)
     }
+  end
+
+  defp format_time(time) do 
+    n_time = (time / 1000000.0) |> Float.round(6)
+    # :erlang.float_to_list(n_time,[{:decimals,6}])
   end
 
   defp generate_test_body(%ExUnit.Test{state: nil}), do: []
