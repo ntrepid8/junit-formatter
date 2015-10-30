@@ -163,7 +163,8 @@ defmodule JUnitFormatter do
     generate_test_body(%ExUnit.Test{state: {:failed, {kind, reason, stacktrace}}})
   end
   defp generate_test_body(%ExUnit.Test{state: {:failed, {kind, reason, stacktrace}}}) do
-    IO.puts IO.ANSI.format([:green, :bright, "generate_test_body: #{inspect %ExUnit.Test{state: {:failed, {kind, reason, stacktrace}}}}"])
+    IO.puts :stderr, "generate_test_body - ping"
+    IO.puts :stderr, IO.ANSI.format([:green, :bright, "generate_test_body: #{inspect %ExUnit.Test{state: {:failed, {kind, reason, stacktrace}}}}"])
     formatted_stack = Exception.format_stacktrace(stacktrace)
     message =
       case reason do
