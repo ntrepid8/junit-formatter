@@ -163,8 +163,6 @@ defmodule JUnitFormatter do
     generate_test_body(%ExUnit.Test{state: {:failed, {kind, reason, stacktrace}}})
   end
   defp generate_test_body(%ExUnit.Test{state: {:failed, {kind, reason, stacktrace}}}) do
-    IO.puts :stderr, "generate_test_body - ping"
-    IO.puts :stderr, IO.ANSI.format([:green, :bright, "generate_test_body: #{inspect %ExUnit.Test{state: {:failed, {kind, reason, stacktrace}}}}"])
     formatted_stack = Exception.format_stacktrace(stacktrace)
     message =
       case reason do
@@ -172,6 +170,15 @@ defmodule JUnitFormatter do
         other -> inspect(other)
       end
     [{:failure, [message: Atom.to_string(kind) <> ": " <> message], [String.to_char_list(formatted_stack)]}]
+  end
+  @doc """
+  Hack to make Postgrex.Error working
+  """
+  defp generate_test_body(%ExUnit.Test{state: {:failed, {kind, %{message: msg, postres: pst}, stacktrace}}}) do 
+    IO.puts :stderr, "generate_test_body - ping"
+    IO.puts :stderr, IO.ANSI.format([:green, :bright, "generate_test_body: #{inspect %ExUnit.Test{state: {:failed, {kind, pst.message, stacktrace}}}}"])
+    formatted_stack = Exception.format_stacktrace(stacktrace)
+    [{:failed, [message: Atom.to_string(kind) <> ": " <> pst.message], [String.to_char_list(formatted_stack)]}]
   end
   defp generate_test_body(%ExUnit.Test{state: {:invalid, module}}) do
     [{:error, [message: "Invalid module #{inspect module}"], []}]
