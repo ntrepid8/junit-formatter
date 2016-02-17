@@ -43,7 +43,7 @@ defmodule JUnitFormatter do
     failures: 0,
     skipped: 0,
     tests: 0,
-    time: '0.0',
+    time: 0,
     test_cases: []
 
     @type t :: %__MODULE__{
@@ -51,7 +51,7 @@ defmodule JUnitFormatter do
       failures: non_neg_integer,
       skipped: non_neg_integer,
       tests: non_neg_integer,
-      time: char_list,
+      time: non_neg_integer,
       test_cases: [ExUnit.Test.t]
     }
   end
@@ -157,7 +157,7 @@ defmodule JUnitFormatter do
   """
   defp format_time(time) do 
     n_time = (time / 1000000.0)
-    |> Float.to_char_list(6)
+    |> Float.to_string(decimals: 6, compact: true)
   end
 
   defp generate_test_body(%ExUnit.Test{state: nil}), do: []
