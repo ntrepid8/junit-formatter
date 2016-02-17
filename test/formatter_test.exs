@@ -11,8 +11,13 @@ defmodule FormatterTest do
       end
     end
 
+    valid_output_re = read_fixture("valid_test.xml")
+    |> Regex.escape
+    |> String.replace("TIME_REGEX", "[0-9]+?.[0-9]{1,6}")
+    |> Regex.compile!
+
     output = run_and_capture_output |> strip_time_and_line_number
-    assert output =~ read_fixture("valid_test.xml")
+    assert output =~ valid_output_re
   end
 
   test "that an invalid test generates a proper report" do
@@ -25,8 +30,13 @@ defmodule FormatterTest do
       end
     end
 
+    invalid_output_re = read_fixture("invalid_test.xml")
+    |> Regex.escape
+    |> String.replace("TIME_REGEX", "[0-9]+?.[0-9]{1,6}")
+    |> Regex.compile!
+
     output = run_and_capture_output |> strip_time_and_line_number
-    assert output =~ read_fixture("invalid_test.xml")
+    assert output =~ invalid_output_re
   end
 
   test "valid and invalid tests generates a proper report" do
@@ -46,11 +56,11 @@ defmodule FormatterTest do
     output = run_and_capture_output |> strip_time_and_line_number
 
     # can't ensure order. Assert it contains both cases
-    assert output =~ "<testcase classname=\"Elixir.FormatterTest.ValidAndInvalidTest\" name=\"test the truth\" />"
-    assert output =~ "<testcase classname=\"Elixir.FormatterTest.ValidAndInvalidTest\" name=\"test it will fail\" ><failure message=\"error: Assertion with == failed\">    test/formatter_test.exs FormatterTest.ValidAndInvalidTest.\"test it will fail\"/1\n</failure></testcase>"
+    assert output =~ ~r/<testcase classname="Elixir.FormatterTest.ValidAndInvalidTest" name="test the truth" time="[0-9]+?.[0-9]{1,6}"/
+    assert output =~ ~r/<testcase classname="Elixir.FormatterTest.ValidAndInvalidTest" name="test it will fail" time="[0-9]+?.[0-9]{1,6}"><failure message="error: Assertion with == failed">    test\/formatter_test.exs FormatterTest.ValidAndInvalidTest."test it will fail"\/1\n<\/failure><\/testcase>/
 
     # assert it contains correct suite
-    assert output =~ "<testsuite errors=\"0\" failures=\"1\" name=\"Elixir.FormatterTest.ValidAndInvalidTest\" tests=\"2\" >"
+    assert output =~ ~r/<testsuite errors="0" failures="1" name="Elixir.FormatterTest.ValidAndInvalidTest" tests="2" time="[0-9]+?.[0-9]{1,6}">/
   end
 
   test "it counts raises as failures" do
@@ -64,8 +74,8 @@ defmodule FormatterTest do
 
     output = run_and_capture_output |> strip_time_and_line_number
 
-    assert output =~ "<testsuite errors=\"0\" failures=\"1\" name=\"Elixir.FormatterTest.RaiseAsFailureTest\" tests=\"1\""
-    assert output =~ "<testcase classname=\"Elixir.FormatterTest.RaiseAsFailureTest\" name=\"test it counts raises\" ><failure message=\"error: argument error\">    test/formatter_test.exs FormatterTest.RaiseAsFailureTest.\"test it counts raises\"/1"
+    assert output =~ ~r/<testsuite errors=\"0\" failures=\"1\" name=\"Elixir.FormatterTest.RaiseAsFailureTest\" tests=\"1\"/
+    assert output =~ ~r/<testcase classname=\"Elixir.FormatterTest.RaiseAsFailureTest\" name=\"test it counts raises\" time=\"[0-9]+?.[0-9]{1,6}\"><failure message=\"error: argument error\">    test\/formatter_test.exs FormatterTest.RaiseAsFailureTest.\"test it counts raises\"\/1/
   end
 
   test "it can handle empty reason" do
@@ -79,7 +89,7 @@ defmodule FormatterTest do
 
     output = run_and_capture_output |> strip_time_and_line_number
     
-    assert output =~ "<testcase classname=\"Elixir.FormatterTest.RaiseWithNoReason\" name=\"test it raises without reason\" ><failure message=\"throw: nil\">    test/formatter_test.exs FormatterTest.RaiseWithNoReason.\"test it raises without reason\"/1\n</failure></testcase>"
+    assert output =~ ~r/<testcase classname=\"Elixir.FormatterTest.RaiseWithNoReason\" name=\"test it raises without reason\" time=\"[0-9]+?.[0-9]{1,6}\"><failure message=\"throw: nil\">    test\/formatter_test.exs FormatterTest.RaiseWithNoReason.\"test it raises without reason\"\/1\n<\/failure><\/testcase>/
   end
 
   # Utilities --------------------
