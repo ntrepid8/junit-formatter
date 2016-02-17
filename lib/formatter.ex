@@ -43,7 +43,7 @@ defmodule JUnitFormatter do
     failures: 0,
     skipped: 0,
     tests: 0,
-    time: 0.0,
+    time: '0.0',
     test_cases: []
 
     @type t :: %__MODULE__{
@@ -51,7 +51,7 @@ defmodule JUnitFormatter do
       failures: non_neg_integer,
       skipped: non_neg_integer,
       tests: non_neg_integer,
-      time: float,
+      time: char_list,
       test_cases: [ExUnit.Test.t]
     }
   end
@@ -156,7 +156,8 @@ defmodule JUnitFormatter do
   source: <https://github.com/windyroad/JUnit-Schema/blob/master/JUnit.xsd#L129>
   """
   defp format_time(time) do 
-    n_time = (time / 1000000.0) |> Float.round(6)
+    n_time = (time / 1000000.0)
+    |> Float.to_char_list(6)
   end
 
   defp generate_test_body(%ExUnit.Test{state: nil}), do: []
