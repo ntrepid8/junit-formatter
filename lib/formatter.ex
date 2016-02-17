@@ -150,9 +150,13 @@ defmodule JUnitFormatter do
     }
   end
 
+  @doc ~S"""
+  Format the time taken to run the test case in seconds and round with precision == 6.
+
+  source: <https://github.com/windyroad/JUnit-Schema/blob/master/JUnit.xsd#L129>
+  """
   defp format_time(time) do 
     n_time = (time / 1000000.0) |> Float.round(6)
-    # :erlang.float_to_list(n_time,[{:decimals,6}])
   end
 
   defp generate_test_body(%ExUnit.Test{state: nil}), do: []
